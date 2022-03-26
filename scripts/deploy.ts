@@ -16,11 +16,13 @@ async function main() {
   const token = await Token.deploy(bridge.address);
   await token.deployed();
 
-  await run(`verify:verify`, {
-    address: bridge.address,
-    contract: "contracts/Bridge.sol:Bridge",
-    constructorArguments: [validator.address, chainId],
-  });
+  setTimeout(async function () {
+    await run(`verify:verify`, {
+      address: bridge.address,
+      contract: "contracts/Bridge.sol:Bridge",
+      constructorArguments: [validator.address, chainId],
+    });
+  }, 5000);
 
   await run(`verify:verify`, {
     address: token.address,

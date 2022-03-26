@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
-contract Bridge is ReentrancyGuard, AccessControl {
+contract BridgeWithTime is ReentrancyGuard, AccessControl {
     using ECDSA for bytes32;
 
     bytes32 public constant VALIDATOR_ROLE = keccak256("VALIDATOR_ROLE");

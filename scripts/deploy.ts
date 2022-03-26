@@ -22,7 +22,7 @@ async function main() {
       contract: "contracts/Bridge.sol:Bridge",
       constructorArguments: [validator.address, chainId],
     });
-  }, 5000);
+  }, 10000);
 
   await run(`verify:verify`, {
     address: token.address,

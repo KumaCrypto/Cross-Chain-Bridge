@@ -3,7 +3,7 @@
 import { task } from "hardhat/config";
 
 
-const contractAddress = "0x4896a523302E3613F052b48bBdd4efe20b4B683F";
+const contractAddress = "0x85a874323BE23f6ce61Cb6A5317e1Ba7cEE4ec73";
 
 task("swap", "Swap your tokens to another chain")
     .addParam("receiver", "Receiver address on another chain")

@@ -113,7 +113,7 @@ contract Bridge is ReentrancyGuard, AccessControl {
         );
 
         bytes32 signedDataHash = keccak256(
-            abi.encodePacked(
+            abi.encode(
                 receiver,
                 supportedTokens[symbol],
                 amount,
@@ -127,7 +127,7 @@ contract Bridge is ReentrancyGuard, AccessControl {
         require(hasRole(VALIDATOR_ROLE, signer), "Bridge: invalid sig");
 
         IERC20(supportedTokens[symbol]).mint(receiver, amount);
-        usersNonces[msg.sender][nonce] == true;
+        usersNonces[msg.sender][nonce] = true;
 
         emit RedeemInitilaized(
             receiver,

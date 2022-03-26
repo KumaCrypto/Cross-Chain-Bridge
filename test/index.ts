@@ -37,8 +37,11 @@ describe("Bridge", function () {
     ETH_bridge = await new Bridge__factory(validator).deploy(validator.address, ETH_Id);
     BSC_bridge = await new Bridge__factory(validator).deploy(validator.address, BSC_Id);
 
-    ETH_Token = await new TestToken__factory(validator).deploy(ETH_bridge.address);
-    BSC_Token = await new TestToken__factory(validator).deploy(BSC_bridge.address);
+    ETH_Token = await new TestToken__factory(validator).deploy(BSC_bridge.address);
+    BSC_Token = await new TestToken__factory(validator).deploy(ETH_bridge.address);
+
+    ETH_Token.grantRole(ethers.utils.solidityKeccak256(["string"], ["MINTER_ROLE"]), ETH_bridge.address);
+    BSC_Token.grantRole(ethers.utils.solidityKeccak256(["string"], ["MINTER_ROLE"]), BSC_bridge.address);
 
     await ETH_bridge.updateChainByld(BSC_Id, true);
     await BSC_bridge.updateChainByld(ETH_Id, true);
@@ -204,13 +207,16 @@ describe("Bridge", function () {
 
   describe("redeem", () => {
     let signature: Signature;
-
     beforeEach(async function () {
       await ETH_bridge.connect(user).swap(user2.address, defaultAmount, BSC_Id, 1, "ETH");
 
+      const encoded = new ethers.utils.AbiCoder().encode(
+        ["address", "address", "uint256", "uint256", "uint256"],
+        [user2.address, ETH_Token.address, defaultAmount, 1, BSC_Id]
+      );
+
       const signedDataHash = ethers.utils.solidityKeccak256(
-        ["address", "address", "uint256", "uint256", "uint256",],
-        [user2.address, await BSC_bridge.getToken("ETH"), defaultAmount, 1, BSC_Id]
+        ["bytes"], [encoded]
       );
 
       const bytesArray = ethers.utils.arrayify(signedDataHash);
@@ -249,9 +255,9 @@ describe("Bridge", function () {
       ).to.be.revertedWith("This transaction is for another chain");
     });
 
-    // The next test is unsuccessful, need to figure out why?
     it("BED TEST", async () => {
       const receiverBalanceBefore = await ETH_Token.balanceOf(user2.address);
+
       BSC_bridge.connect(user2).redeem(
         user2.address,
         "ETH",
@@ -262,13 +268,36 @@ describe("Bridge", function () {
         signature.r,
         signature.s
       );
-
-      // Error: VM Exception while processing transaction: reverted with reason string
-      // 'AccessControl: account 0x53927b50bade6756ef77463e13a73ab3ed561ed2 is missing role
-      // 0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6'
-
       const receiverBalance = await ETH_Token.balanceOf(user2.address);
       expect(receiverBalanceBefore.add(defaultAmount)).to.eq(receiverBalance);
+    });
+
+    it("Redeem setted a usersNonces", async () => {
+
+      BSC_bridge.connect(user2).redeem(
+        user2.address,
+        "ETH",
+        defaultAmount,
+        1,
+        BSC_Id,
+        signature.v,
+        signature.r,
+        signature.s
+      );
+      expect(await BSC_bridge.nonceStatus(user2.address, 1)).to.eq(true);
+    });
+
+    it("Redeem - emit RedeemInitilaized", async () => {
+      await expect(BSC_bridge.connect(user2).redeem(
+        user2.address,
+        "ETH",
+        defaultAmount,
+        1,
+        BSC_Id,
+        signature.v,
+        signature.r,
+        signature.s
+      )).to.emit(BSC_bridge, "RedeemInitilaized").withArgs(user2.address, ETH_Token.address, defaultAmount, 1);
     });
   });
 

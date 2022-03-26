@@ -2,7 +2,7 @@ import { ethers } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import Bridge from "../artifacts/contracts/Bridge.sol/Bridge.json";
 
-const BridgeAddress = "0x4896a523302E3613F052b48bBdd4efe20b4B683F";
+const BridgeAddress = "0x85a874323BE23f6ce61Cb6A5317e1Ba7cEE4ec73";
 
 async function main() {
     const [validator]: SignerWithAddress[] = await ethers.getSigners();
@@ -14,10 +14,14 @@ async function main() {
     // But if you use another provider, then with other chains too.
 
     console.log("Try to listen...");
-    bridge.on("SwapInitilaized", async (receiver, token, amount, nonce, time, chainTo) => {
-        const signedDataHash = ethers.utils.solidityKeccak256(
+    bridge.on("SwapInitilaized", async (receiver, token, amount, nonce, chainTo) => {
+        const encoded = new ethers.utils.AbiCoder().encode(
             ["address", "address", "uint256", "uint256", "uint256"],
             [receiver, token, amount, nonce, chainTo]
+        );
+
+        const signedDataHash = ethers.utils.solidityKeccak256(
+            ["bytes"], [encoded]
         );
 
         // At this step we are making ethers to treat data as bytes array,
@@ -42,7 +46,6 @@ async function main() {
         token = ${token},
         amount = ${amount},
         nonce = ${nonce},
-        time = ${time},
         chainTo = ${chainTo}`
         );
     });
@@ -52,3 +55,4 @@ main().catch((error) => {
     console.error(error);
     process.exitCode = 1;
 });
+

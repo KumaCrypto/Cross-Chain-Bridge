@@ -3,7 +3,7 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import Bridge from "../artifacts/contracts/Bridge.sol/Bridge.json";
 
 
-const BridgeAddress = "0x85a874323BE23f6ce61Cb6A5317e1Ba7cEE4ec73";
+const BridgeAddress = "0x98C77D8E65E75265151FDB26C06e03e0F763aaFF";
 
 async function main() {
     const [validator]: SignerWithAddress[] = await ethers.getSigners();

@@ -1,6 +1,13 @@
+# Token Cross Chain Bridge
+
+## Functional description:
+- Swap() function: debits tokens from the user and emits event ‘swapInitialized’
+- The redeem() function: calls the ecrecover function and restores the validator's address based on the hashed message and signature, if the address matches the address    specified on the bridge contract, tokens are sent to the user
+- UpdateChainById() function: add a blockchain or delete by its chainId
+- IncludeToken() function: add a token to transfer it to another network
+- Exclude Token() function: exclude token for transmission
 
 ## Deployed in rinkeby:
-
 ### New:
   Contracts        |                             Addresses                      |
 -------------------|------------------------------------------------------------|
